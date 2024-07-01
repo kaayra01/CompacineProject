@@ -9,7 +9,7 @@
     - /movies
     - /sessions
     - /tickets
-- As funcionalidades de cada rota são configuradas pelos controllers e routes, permitindo a a alteração dos dados de acordo com as regras de negócios.
+- As funcionalidades de cada rota são configuradas pelos controllers e routes, permitindo a alteração dos dados de acordo com as regras de negócios.
 
 ## Instalação
 - *Atenção!* É necessário ter o NodeJS instalado.
