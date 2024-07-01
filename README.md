@@ -15,7 +15,7 @@
 - *Atenção!* É necessário ter o NodeJS instalado.
 - Para iniciar é necessário realizar o `git clone` do projeto e entrar no seu editor de código favorito;
 - Dentro do editor, abra o terminal e rode o comando `npm install` ou `npm i` para instalar as dependências do projeto;
-- Mudar no arquivo 'db/conn.js' os campos `<user>` e `<password>` para `compacineTest` e `compacineNewUsers`, respectivamente, para acessar o banco.
+- 
 
 ## Execução
 - Com as instalações e configurações feitas com sucesso, é possível rodar o projeto com o comando `npm run start`;
