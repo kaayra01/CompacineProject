@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Comprar Ingresso</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="main">
+      <h1 class="container-title">Comprar Ingresso</h1>
+      <div class="content titles">
+        <p>Filmes em exibição:</p>
+        <select class="form-data" id="movies-select">
+          <option value="">Selecione um filme</option>
+        </select>
+
+        <p>Sessões disponíveis:</p>
+        <select class="form-data" id="sessions-select" disabled>
+          <option value="">Selecione uma sessão</option>
+        </select>
+
+        <p>Poltronas vazias:</p>
+        <select class="form-data" id="seats-select" disabled>
+          <option value="">Selecione uma poltrona</option>
+        </select>
+        <div class="buttons">
+          <button id="buy-ticket-btn" class="container-button" disabled>
+            Comprar Ingresso
+          </button>
+        </div>
+      </div>
+      <a href="./index.html" class="container-button second-button">HOME</a>
+    </div>
+    <script>
+      const apiBaseUrl = "http://localhost:3000/api";
+
+      async function fetchMovies() {
+        try {
+          const response = await fetch(`${apiBaseUrl}/movies`);
+          const data = await response.json();
+          const movies = Array.isArray(data.movies) ? data.movies : [];
+
+          const moviesSelect = document.getElementById("movies-select");
+          moviesSelect.innerHTML =
+            '<option value="">Selecione um filme</option>';
+
+          movies.forEach((movie) => {
+            const option = document.createElement("option");
+            option.value = movie._id;
+            option.textContent = movie.title;
+            moviesSelect.appendChild(option);
+          });
+        } catch (error) {
+          console.error("Erro ao buscar filmes:", error);
+        }
+      }
+
+      async function fetchSessions(movieId) {
+        try {
+          const response = await fetch(
+            `${apiBaseUrl}/sessions?movieId=${movieId}`
+          );
+          const data = await response.json();
+          const sessions = Array.isArray(data.sessions) ? data.sessions : [];
+
+          const sessionsSelect = document.getElementById("sessions-select");
+          sessionsSelect.innerHTML =
+            '<option value="">Selecione uma sessão</option>';
+
+          sessions.forEach((session) => {
+            if (movieId === session.movie) {
+              const option = document.createElement("option");
+              option.value = session._id;
+              option.textContent = `Horário: ${session.time} | Capacidade: ${session.capacity}`;
+              sessionsSelect.appendChild(option);
+            }
+          });
+          sessionsSelect.disabled = false;
+        } catch (error) {
+          console.error("Erro ao buscar sessões:", error);
+        }
+      }
+
+      async function fetchAvailableSeats(sessionId) {
+        try {
+          const response = await fetch(
+            `${apiBaseUrl}/tickets?sessionId=${sessionId}`
+          );
+          const data = await response.json();
+          const tickets = Array.isArray(data.tickets) ? data.tickets : [];
+
+          const availableTickets = tickets.filter((ticket) => !ticket.sold);
+
+          const seatsList = document.getElementById("seats-select");
+          seatsList.innerHTML =
+            '<option value="">Selecione um ingresso</option>';
+
+          availableTickets.forEach((ticket) => {
+            if (sessionId == ticket.session) {
+              const seat = document.createElement("option");
+              seat.value = ticket._id;
+              seat.textContent = `Poltrona ${ticket.seat}: R$ ${ticket.price}`;
+
+              seatsList.appendChild(seat);
+            }
+          });
+          seatsList.disabled = false;
+        } catch (error) {
+          console.error("Erro ao buscar cadeiras disponíveis:", error);
+        }
+      }
+
+      async function buyTicket(ticketId) {
+        try {
+          const response = await fetch(`${apiBaseUrl}/tickets/${ticketId}`);
+          const tickets = await response.json();
+
+          const ticket = {
+            seat: tickets.seat,
+            price: tickets.price,
+            sold: true,
+          };
+
+          const resp = await fetch(`${apiBaseUrl}/tickets/${ticketId}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(ticket),
+          });
+
+          if (!resp.ok) {
+            const errorData = await resp.json();
+            throw new Error(errorData.message);
+          }
+
+          alert("Ingresso comprado com sucesso!");
+          window.location.reload();
+        } catch (error) {
+          console.error("Erro ao comprar ingresso:", error);
+          alert(error.message);
+        }
+      }
+
+      document
+        .getElementById("movies-select")
+        .addEventListener("change", (e) => {
+          const movieId = e.target.value;
+          if (movieId) {
+            fetchSessions(movieId);
+          } else {
+            document.getElementById("sessions-select").innerHTML =
+              '<option value="">Selecione uma sessão</option>';
+            document.getElementById("sessions-select").disabled = true;
+            document.getElementById("seats-select").innerHTML = "";
+            document.getElementById("buy-ticket-btn").disabled = true;
+          }
+        });
+
+      document
+        .getElementById("sessions-select")
+        .addEventListener("change", (e) => {
+          const sessionId = e.target.value;
+          if (sessionId) {
+            fetchAvailableSeats(sessionId);
+          } else {
+            document.getElementById("seats-select").innerHTML = "";
+            document.getElementById("buy-ticket-btn").disabled = true;
+          }
+        });
+
+      document
+        .getElementById("seats-select")
+        .addEventListener("change", (e) => {
+          const ticketId = e.target.value;
+          document.getElementById("buy-ticket-btn").dataset.ticketId = ticketId;
+          document.getElementById("buy-ticket-btn").disabled = false;
+        });
+
+      document
+        .getElementById("buy-ticket-btn")
+        .addEventListener("click", () => {
+          const ticketId =
+            document.getElementById("buy-ticket-btn").dataset.ticketId;
+          buyTicket(ticketId);
+        });
+
+      fetchMovies();
+    </script>
+  </body>
+</html>

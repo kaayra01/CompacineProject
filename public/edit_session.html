@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Compacine - Sessões</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="main">
+      <h1 class="container-title">Editar Sessão</h1>
+
+      <form id="edit-session-form" class="content titles">
+        <input type="hidden" id="sessionId" name="sessionId" />
+
+        <label for="capacity">Capacidade:</label>
+        <input
+          class="form-data"
+          type="number"
+          id="capacity"
+          name="capacity"
+          required
+        />
+
+        <label for="time">Horário:</label>
+        <input class="form-data" type="text" id="time" name="time" required />
+
+        <div class="buttons">
+          <button type="submit" class="container-button">Salvar</button>
+        </div>
+      </form>
+      <a href="./index.html" class="container-button second-button">HOME</a>
+    </div>
+    <script>
+      const apiBaseUrl = "http://localhost:3000/api";
+      const urlParams = new URLSearchParams(window.location.search);
+      const sessionId = urlParams.get("sessionId");
+
+      async function fetchSessionDetails() {
+        try {
+          const response = await fetch(`${apiBaseUrl}/sessions/${sessionId}`);
+          const session = await response.json();
+          document.getElementById("sessionId").value = session._id;
+          document.getElementById("capacity").value = session.capacity;
+          document.getElementById("time").value = session.time;
+        } catch (error) {
+          console.error("Erro ao buscar detalhes da sessão:", error);
+        }
+      }
+
+      document
+        .getElementById("edit-session-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const session = {
+            capacity: formData.get("capacity"),
+            time: formData.get("time"),
+          };
+
+          try {
+            const resp = await fetch(`${apiBaseUrl}/sessions/${sessionId}`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(session),
+            });
+            console.log(resp);
+            alert("Sessão atualizada com sucesso!");
+          } catch (error) {
+            console.error("Erro ao atualizar sessão:", error);
+          }
+        });
+
+      fetchSessionDetails();
+    </script>
+  </body>
+</html>
