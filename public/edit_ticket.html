@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Compacine - Ingresso</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="main">
+      <h1 class="container-title">Editar Ingresso</h1>
+
+      <form id="edit-ticket-form" class="content titles">
+        <input type="hidden" id="ticketId" name="ticketId" />
+
+        <label for="seat">Cadeira:</label>
+        <input class="form-data" type="text" id="seat" name="seat" required />
+
+        <label for="price">Preço:</label>
+        <input
+          class="form-data"
+          type="number"
+          id="price"
+          name="price"
+          required
+        />
+
+        <label for="sold">Vendido:</label>
+        <input class="form-data" type="text" id="sold" name="sold" />
+
+        <div class="buttons">
+          <button type="submit" class="container-button">Salvar</button>
+        </div>
+      </form>
+      <a href="./index.html" class="container-button second-button">HOME</a>
+    </div>
+    <script>
+      const apiBaseUrl = "http://localhost:3000/api";
+      const urlParams = new URLSearchParams(window.location.search);
+      const ticketId = urlParams.get("ticketId");
+
+      async function fetchTicketDetails() {
+        try {
+          const response = await fetch(`${apiBaseUrl}/tickets/${ticketId}`);
+          const ticket = await response.json();
+          document.getElementById("ticketId").value = ticket._id;
+          document.getElementById("seat").value = ticket.seat;
+          document.getElementById("price").value = ticket.price;
+          document.getElementById("sold").value = ticket.sold;
+        } catch (error) {
+          console.error("Erro ao buscar detalhes do ingresso:", error);
+        }
+      }
+
+      document
+        .getElementById("edit-ticket-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const ticket = {
+            seat: formData.get("seat"),
+            price: formData.get("price"),
+          };
+
+          try {
+            await fetch(`${apiBaseUrl}/tickets/${ticketId}`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(ticket),
+            });
+            alert("Ingresso atualizado com sucesso!");
+          } catch (error) {
+            console.error("Erro ao atualizar ingresso:", error);
+          }
+        });
+
+      fetchTicketDetails();
+    </script>
+  </body>
+</html>

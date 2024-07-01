@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Compacine</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="main">
+      <h1 class="container-title">Filmes</h1>
+
+      <div id="movies-list"></div>
+      <br /><br />
+      <div class="home-buttons">
+        <a href="./add_movies.html" class="container-button second-button"
+          >Cadastrar Novo Filme</a
+        >
+        <a href="./buy_tickets.html" class="container-button second-button"
+          >Comprar Ingresso</a
+        >
+      </div>
+      <br />
+    </div>
+    <script>
+      const apiBaseUrl = "http://localhost:3000/api";
+
+      document.addEventListener("DOMContentLoaded", () => {
+        fetchMovies();
+      });
+
+      async function fetchMovies() {
+        try {
+          const response = await fetch(`${apiBaseUrl}/movies`);
+          const data = await response.json();
+          const movies = Array.isArray(data.movies) ? data.movies : [];
+
+          const moviesList = document.getElementById("movies-list");
+          moviesList.innerHTML = "";
+
+          movies.forEach((movie) => {
+            const listItem = document.createElement("div");
+            listItem.innerHTML = `
+                <div class="container content">
+                    <img src="${movie.imageURL}" alt="Capa do fime ${movie.title}" class="image">
+                    <div class="container-description">
+                        <h3 class="title-description">${movie.title}</h3>
+                        <div class="text-description">
+                            <p class="description">${movie.description}</p>
+                            <p class="cast"><strong>Elenco:</strong> ${movie.cast}</p>
+                            <p class="genre"><strong>Gênero:</strong> ${movie.genre}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const editMovieLink = document.createElement("a");
+            editMovieLink.className = "container-button";
+            editMovieLink.href = `edit_movie.html?movieId=${movie._id}`;
+            editMovieLink.textContent = "Editar Filme";
+
+            const deleteMovieLink = document.createElement("a");
+            deleteMovieLink.className = "container-button";
+            deleteMovieLink.href = "#";
+            deleteMovieLink.textContent = "Excluir Filme";
+            deleteMovieLink.onclick = () => deleteMovie(movie._id);
+
+            const manageSessionsLink = document.createElement("a");
+            manageSessionsLink.className = "container-button";
+            manageSessionsLink.href = `manage_sessions.html?movieId=${movie._id}`;
+            manageSessionsLink.textContent = "Gerenciar Sessões";
+
+            listItem.appendChild(editMovieLink);
+            listItem.appendChild(deleteMovieLink);
+            listItem.appendChild(manageSessionsLink);
+            moviesList.appendChild(listItem);
+          });
+        } catch (error) {
+          console.error("Erro ao buscar filmes:", error);
+        }
+      }
+
+      async function deleteMovie(id) {
+        const response = await fetch(`${apiBaseUrl}/movies/${id}`, {
+          method: "DELETE",
+        });
+
+        if (response.ok) {
+          fetchMovies();
+        } else {
+          alert("Failed to delete movie");
+        }
+      }
+    </script>
+  </body>
+</html>

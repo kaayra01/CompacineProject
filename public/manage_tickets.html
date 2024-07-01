@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Compacine - Sessões</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="main">
+      <h1 class="container-title">Gerenciar Ingressos</h1>
+
+      <h2 class="title-description">Cadastrar Novo Ingresso</h2>
+      <form id="add-ticket-form" class="content titles">
+        <input type="hidden" id="sessionId" name="sessionId" value="" />
+
+        <label for="seat">Cadeira:</label>
+        <input class="form-data" type="text" id="seat" name="seat" required />
+
+        <label for="price">Preço:</label>
+        <input
+          class="form-data"
+          type="number"
+          id="price"
+          name="price"
+          required
+        />
+
+        <div class="buttons">
+          <button type="submit" class="container-button">Salvar</button>
+          <button type="reset" class="container-button">Apagar</button>
+        </div>
+      </form>
+
+      <h2 class="title-description lists">Ingressos</h2>
+      <ul id="tickets-list" class="lists text-description"></ul>
+
+      <a href="./index.html" class="container-button second-button">HOME</a>
+    </div>
+    <script>
+      const apiBaseUrl = "http://localhost:3000/api";
+      const urlParams = new URLSearchParams(window.location.search);
+      const sessionId = urlParams.get("sessionId");
+
+      document.getElementById("sessionId").value = sessionId;
+
+      // Fetch e exibir sessões
+      async function fetchTickets() {
+        try {
+          const response = await fetch(
+            `${apiBaseUrl}/tickets?sessionId=${sessionId}`
+          );
+          const data = await response.json();
+          const tickets = Array.isArray(data.tickets) ? data.tickets : [];
+          const ticketsList = document.getElementById("tickets-list");
+          ticketsList.innerHTML = "";
+
+          tickets.forEach((ticket) => {
+            if (sessionId === ticket.session) {
+              const listItem = document.createElement("li");
+              listItem.className = "lists";
+              listItem.textContent = `Cadeira: ${ticket.seat} | Preço: R$ ${ticket.price}`;
+
+              const deleteMovieLink = document.createElement("a");
+              deleteMovieLink.className = "container-button";
+              deleteMovieLink.href = "#";
+              deleteMovieLink.textContent = "Excluir";
+              deleteMovieLink.onclick = async () => {
+                await deleteTicket(ticket._id);
+                fetchTickets();
+              };
+
+              const editTicketLink = document.createElement("a");
+              editTicketLink.className = "container-button";
+              editTicketLink.href = `edit_ticket.html?ticketId=${ticket._id}`;
+              editTicketLink.textContent = "Editar";
+              editTicketLink.style.marginLeft = "10px";
+
+              listItem.appendChild(deleteMovieLink);
+              listItem.appendChild(editTicketLink);
+              ticketsList.appendChild(listItem);
+            }
+          });
+        } catch (error) {
+          console.error("Erro ao buscar sessões:", error);
+        }
+      }
+
+      document
+        .getElementById("add-ticket-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const ticket = {
+            session: sessionId,
+            seat: formData.get("seat"),
+            price: formData.get("price"),
+          };
+
+          try {
+            await fetch(`${apiBaseUrl}/tickets`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(ticket),
+            });
+            e.target.reset();
+            fetchTickets();
+          } catch (error) {
+            console.error("Erro ao adicionar ingresso:", error);
+          }
+        });
+
+      async function deleteTicket(ticketId) {
+        try {
+          await fetch(`${apiBaseUrl}/tickets/${ticketId}`, {
+            method: "DELETE",
+          });
+        } catch (error) {
+          console.error("Erro ao deletar ingresso:", error);
+        }
+      }
+
+      fetchTickets();
+    </script>
+  </body>
+</html>

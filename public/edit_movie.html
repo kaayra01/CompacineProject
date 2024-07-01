@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Compacine - Filmes</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="main">
+      <h1 class="container-title">Editar Filme</h1>
+
+      <form id="edit-movie-form" class="content titles">
+        <input class="form-data" type="hidden" id="movieId" name="movieId" />
+
+        <label for="title">Título:</label>
+        <input class="form-data" type="text" id="title" name="title" required />
+
+        <label for="cast">Elenco:</label>
+        <input class="form-data" type="text" id="cast" name="cast" required />
+
+        <label for="genre">Gênero:</label>
+        <input class="form-data" type="text" id="genre" name="genre" required />
+
+        <label for="description">Descrição:</label>
+        <textarea
+          class="form-data"
+          id="description"
+          name="description"
+          required
+        ></textarea>
+
+        <div class="buttons">
+          <button type="submit" class="container-button">Salvar</button>
+        </div>
+      </form>
+      <a href="./index.html" class="container-button second-button">HOME</a>
+    </div>
+    <script>
+      const apiBaseUrl = "http://localhost:3000/api";
+      const urlParams = new URLSearchParams(window.location.search);
+      const movieId = urlParams.get("movieId");
+
+      async function fetchMovieDetails() {
+        try {
+          const response = await fetch(`${apiBaseUrl}/movies/${movieId}`);
+          const movie = await response.json();
+          document.getElementById("movieId").value = movie._id;
+          document.getElementById("title").value = movie.title;
+          document.getElementById("description").value = movie.description;
+          document.getElementById("cast").value = movie.cast;
+          document.getElementById("genre").value = movie.genre;
+        } catch (error) {
+          console.error("Erro ao buscar detalhes do filme:", error);
+        }
+      }
+
+      document
+        .getElementById("edit-movie-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const movie = {
+            title: formData.get("title"),
+            description: formData.get("description"),
+            cast: formData.get("cast"),
+            genre: formData.get("genre"),
+          };
+
+          try {
+            await fetch(`${apiBaseUrl}/movies/${movieId}`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(movie),
+            });
+            alert("Filme atualizado com sucesso!");
+          } catch (error) {
+            console.error("Erro ao atualizar filme:", error);
+          }
+        });
+
+      fetchMovieDetails();
+    </script>
+  </body>
+</html>

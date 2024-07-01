@@ -1,0 +1,115 @@
+:root {
+  --main-white: #ffffff;
+  --second-gray: #c0c0c0;
+  --blue-button: #167bf7;
+  --background-color: #050e29;
+  --button-effect: #ec2f46;
+  --main-font: "Inter";
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--main-white);
+  font-family: var(--main-font);
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.main {
+  background-repeat: no-repeat;
+  background-size: contain;
+  align-items: center;
+  text-align: center;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 50% 50%;
+}
+
+.titles {
+  font-size: 1.5rem;
+}
+
+.lists {
+  margin: 2rem 0;
+}
+
+img {
+  width: 15rem;
+  margin-left: 2rem;
+}
+
+.form-data {
+  border: none;
+  border-radius: 0.5rem;
+  border-bottom: 3px solid black;
+  display: block;
+  font-size: 1rem;
+  height: 2.75rem;
+  margin: 1rem 0;
+  width: 95%;
+}
+
+textarea {
+  resize: none;
+}
+
+.container-title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin: 1rem 0;
+}
+
+.container-button {
+  background-color: var(--blue-button);
+  width: 6.25rem;
+  border-radius: 5px;
+  padding: 0.5em;
+  color: var(--main-white);
+  text-decoration: none;
+  margin: 1rem;
+  border: none;
+}
+
+.container-button:hover {
+  background-color: var(--button-effect);
+  color: var(--background-color);
+}
+
+.second-button {
+  background-color: transparent;
+  border: 2px solid var(--main-white);
+  margin: 4rem 0;
+}
+
+.second-button:hover {
+  border: 2px solid transparent;
+}
+
+.content {
+  align-items: center;
+  margin: 1em 10em;
+}
+
+.container-description {
+  padding: 2em;
+  margin-right: 2em;
+}
+
+.title-description {
+  font-weight: 700;
+  font-size: 2rem;
+  color: var(--main-white);
+  margin-bottom: 0.1em;
+}
+
+.text-description {
+  color: var(--second-gray);
+  font-size: 1.1rem;
+}

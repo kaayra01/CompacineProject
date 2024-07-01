@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Compacine - Sessões</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="main">
+      <h1 class="container-title">Gerenciar Sessões</h1>
+
+      <h2 class="title-description">Cadastrar Nova Sessão</h2>
+      <form id="add-session-form" class="content titles">
+        <input type="hidden" id="movieId" name="movieId" value="" />
+
+        <label for="capacity">Capacidade:</label>
+        <input
+          class="form-data"
+          type="number"
+          id="capacity"
+          name="capacity"
+          required
+        />
+
+        <label for="room">Sala:</label>
+        <input class="form-data" type="number" id="room" name="room" required />
+
+        <label for="time">Horário:</label>
+        <input class="form-data" type="text" id="time" name="time" required />
+
+        <div class="buttons">
+          <button type="submit" class="container-button">Salvar</button>
+          <button type="reset" class="container-button">Apagar</button>
+        </div>
+      </form>
+
+      <h2 class="title-description lists">Sessões para o filme:</h2>
+      <ul id="sessions-list" class="lists text-description"></ul>
+
+      <a href="./index.html" class="container-button second-button">HOME</a>
+    </div>
+    <script>
+      const apiBaseUrl = "http://localhost:3000/api";
+      const urlParams = new URLSearchParams(window.location.search);
+      const movieId = urlParams.get("movieId");
+
+      document.getElementById("movieId").value = movieId;
+
+      // Fetch e exibir sessões
+      async function fetchSessions() {
+        try {
+          const response = await fetch(
+            `${apiBaseUrl}/sessions?movieId=${movieId}`
+          );
+          const data = await response.json();
+          const sessions = Array.isArray(data.sessions) ? data.sessions : [];
+          const sessionsList = document.getElementById("sessions-list");
+          sessionsList.innerHTML = "";
+
+          sessions.forEach((session) => {
+            if (movieId === session.movie) {
+              const listItem = document.createElement("li");
+              listItem.className = "lists";
+              listItem.textContent = `Capacidade: ${session.capacity} | Sala: ${session.room} | Horário: ${session.time}`;
+
+              const deleteMovieLink = document.createElement("a");
+              deleteMovieLink.className = "container-button";
+              deleteMovieLink.href = "#";
+              deleteMovieLink.textContent = "Excluir";
+              deleteMovieLink.onclick = async () => {
+                await deleteSession(session._id);
+                fetchSessions();
+              };
+
+              const editSessionLink = document.createElement("a");
+              editSessionLink.className = "container-button";
+              editSessionLink.href = `edit_session.html?sessionId=${session._id}`;
+              editSessionLink.textContent = "Editar";
+              editSessionLink.style.marginLeft = "10px";
+
+              const manageTicketsLink = document.createElement("a");
+              manageTicketsLink.className = "container-button";
+              manageTicketsLink.href = `manage_tickets.html?sessionId=${session._id}`;
+              manageTicketsLink.textContent = "Gerenciar Ingressos";
+              manageTicketsLink.style.marginLeft = "10px";
+
+              listItem.appendChild(deleteMovieLink);
+              listItem.appendChild(editSessionLink);
+              listItem.appendChild(manageTicketsLink);
+              sessionsList.appendChild(listItem);
+            }
+          });
+        } catch (error) {
+          console.error("Erro ao buscar sessões:", error);
+        }
+      }
+
+      // Adicionar sessão
+      document
+        .getElementById("add-session-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const session = {
+            movie: movieId,
+            capacity: formData.get("capacity"),
+            room: formData.get("room"),
+            time: formData.get("time"),
+          };
+
+          try {
+            await fetch(`${apiBaseUrl}/sessions`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(session),
+            });
+            e.target.reset();
+            fetchSessions();
+          } catch (error) {
+            console.error("Erro ao adicionar sessão:", error);
+          }
+        });
+
+      // Deletar sessão
+      async function deleteSession(sessionId) {
+        try {
+          await fetch(`${apiBaseUrl}/sessions/${sessionId}`, {
+            method: "DELETE",
+          });
+        } catch (error) {
+          console.error("Erro ao deletar sessão:", error);
+        }
+      }
+
+      // Inicializa a lista de sessões
+      fetchSessions();
+    </script>
+  </body>
+</html>

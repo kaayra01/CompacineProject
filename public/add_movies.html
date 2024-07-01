@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Compacine - Filmes</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="main">
+      <h1 class="container-title">Cadastrar novo filme</h1>
+
+      <form id="add-movie-form" class="content titles">
+        <label for="title">Título do filme:</label>
+        <input class="form-data" type="text" id="title" name="title" required />
+
+        <label for="cast">Elenco:</label>
+        <input class="form-data" type="text" id="cast" name="cast" required />
+
+        <label for="genre">Gênero:</label>
+        <input class="form-data" type="text" id="genre" name="genre" required />
+
+        <label for="imageURL">Capa do filme (URL):</label>
+        <input
+          class="form-data"
+          type="text"
+          id="imageURL"
+          name="imageURL"
+          required
+        />
+
+        <label for="description">Descrição:</label>
+        <textarea
+          class="form-data"
+          id="description"
+          name="description"
+        ></textarea>
+
+        <div class="buttons">
+          <button type="submit" class="container-button">Salvar</button>
+          <button type="reset" class="container-button">Apagar</button>
+        </div>
+      </form>
+      <a href="./index.html" class="container-button second-button">HOME</a>
+    </div>
+
+    <script>
+      const apiUrlMovies = "http://localhost:3000/api/movies";
+
+      document.addEventListener("DOMContentLoaded", () => {
+        document
+          .getElementById("add-movie-form")
+          .addEventListener("submit", function (event) {
+            event.preventDefault();
+            addMovie();
+          });
+      });
+
+      async function addMovie() {
+        const title = document.getElementById("title").value;
+        const description = document.getElementById("description").value;
+        const cast = document.getElementById("cast").value;
+        const genre = document.getElementById("genre").value;
+        const imageURL = document.getElementById("imageURL").value;
+
+        const response = await fetch(apiUrlMovies, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ title, description, cast, genre, imageURL }),
+        });
+
+        if (response.ok) {
+          document.getElementById("add-movie-form").reset();
+        } else {
+          alert("Failed to add movie");
+        }
+      }
+    </script>
+  </body>
+</html>
