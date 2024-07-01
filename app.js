@@ -15,5 +15,5 @@ conn();
 app.use("/api", routes);
 
 app.listen(PORT, function () {
-  console.log('Servidor rodando na porta %s ', PORT);
+  console.log('Servidor rodando na porta %s', PORT);
 });
