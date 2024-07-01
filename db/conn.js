@@ -6,7 +6,7 @@ async function main() {
     mongoose.set("strictQuery", true);
 
     await mongoose.connect("mongodb+srv://<username>:<password>@cluster0.yivzir7.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
-    console.log("DB connected!!");
+    console.log("Banco de dados conectado com sucesso");
   } catch (error) {
     console.log(`Error: ${error}`);
   }
